@@ -6,17 +6,18 @@ from pygame.sprite import Sprite
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-  from alien_invasion import AlienInvasion
+  from alien_fleet import AlienFleet
 
 '''
 Class makes a single bullet. loads picture, has a starting position at the ship.
 '''
 class Alien(Sprite):
-  def __init__(self, game: 'AlienInvasion', x:float, y:float):
+  def __init__(self, fleet: 'AlienFleet', x:float, y:float):
     super().__init__()
-    self.screen = game.screen
-    self.boundaries = game.screen.get_rect()
-    self.settings = game.settings
+    self.fleet = fleet
+    self.screen = fleet.game.screen
+    self.boundaries = fleet.game.screen.get_rect()
+    self.settings = fleet.game.settings
 
     self.image = pygame.image.load(self.settings.alien_file)
     self.image = pygame.transform.scale(self.image, 
@@ -33,11 +34,11 @@ class Alien(Sprite):
   def update(self):
     temp_speed = self.settings.fleet_speed
 
-    if self.check_edges():
-      self.settings.fleet_direction *= -1
-      self.y += self.settings.fleet_drop_speed
+    #if self.check_edges():
+      #self.settings.fleet_direction *= -1
+      #self.y += self.settings.fleet_drop_speed
 
-    self.x += temp_speed * self.settings.fleet_direction
+    self.x += temp_speed * self.fleet.fleet_direction
     self.rect.x = self.x
     self.rect.y = self.y
 
