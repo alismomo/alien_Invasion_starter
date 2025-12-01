@@ -14,6 +14,7 @@ class Settings:
     self.FPS = 60
     self.bg_file = Path.cwd() / 'Assets' / 'images' / 'blue_moon_background.png'
     self.difficulty_scale = 1.1
+    self.scores_file = Path.cwd() / 'Assets' / 'file' / 'scores.json'
 
     self.ship_file = Path.cwd() / 'Assets' / 'images' / 'cat_killer.png'
     self.ship_w = 40
@@ -28,15 +29,15 @@ class Settings:
     self.alien_h = 45
     self.fleet_direction = 1
 
-    self.button_w = 200
-    self.button_h = 50
-    self.button_color = (0, 135, 60)
+    self.button_w = 280
+    self.button_h = 90
+    self.button_color = (40, 20, 90)
 
-    self.text_color = (255, 255, 255)
-    self.button_font_size = 48
-    self.HUD_font_size = 20
+    self.text_color = (255, 255, 0)
+    self.button_font_size = 60
+    self.HUD_font_size = 24
 
-    self.font_file = Path.cwd() / 'Assets' / 'Fonts' / 'Silkscreen' / 'Silkscreen-Bold.ttf'
+    self.font_file = Path.cwd() / 'Assets' / 'Fonts' / 'Silkscreen' / 'ScienceGothic-Regular.ttf'
 
   def initialize_dynamic_settings(self):
     self.ship_speed = 5
@@ -50,6 +51,7 @@ class Settings:
 
     self.fleet_speed = 2
     self.fleet_drop_speed = 40
+    self.alien_points = 50
 
   def increase_difficulty(self):
     self.ship_speed *= self.difficulty_scale

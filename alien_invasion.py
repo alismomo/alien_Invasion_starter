@@ -1,6 +1,7 @@
 '''
-Lab13 - Alien Invasion pygame. Alisa Dzhoha.
-This program is a Pygame where option two was chosen. The alien fleet is changed to new shapes with new picture and new sound. The player moves the ship and shoots at aliens to clear them from the screen. 11/23/2025
+Lab14 - Alien Invasion pygame. Alisa Dzhoha.
+This program is a Pygame game using the Custom Asset Option. I changed the background, ship, aliens, bullets, sounds, and font. I also changed the HUD layout so the score and information show in different places on the screen.
+The player moves the ship and shoots aliens to clear the screen. 11/30/2025
 '''
 
 import sys
@@ -13,17 +14,18 @@ from arsenal import Arsenal
 from alien_fleet import AlienFleet
 from time import sleep
 from button import Button
-'''
-This is a main game class. It includes game's loops, events, refresh of the screen, update of the ship.
-'''
+from hud import HUD
+
+
 class AlienInvasion:
+    """
+    This is a main game class. It includes game's loops, events, refresh of the screen, update of the ship.
+    """
     
     def __init__(self):
         pygame.init()
         self.settings = Settings()
         self.settings.initialize_dynamic_settings()
-        self.game_stats = GameStats(self.settings.starting_ship_count)
-    
         self.screen = pygame.display.set_mode(
             (self.settings.screen_w, self.settings.screen_h)
             )
@@ -35,6 +37,9 @@ class AlienInvasion:
             (self.settings.screen_w, self.settings.screen_h)
             )
 
+        self.game_stats = GameStats(self)
+        self.HUD = HUD(self)
+    
         self.running = True
         self.clock = pygame.time.Clock()
 
@@ -52,10 +57,11 @@ class AlienInvasion:
         self.play_button = Button(self, 'Play')
         self.game_active = False
 
-    '''
-    Thi is a loop for the game. It is running while the window for game is still open.
-    '''
+
     def run_game(self):
+        """
+        This is a loop for the game. It is running while the window for game is still open.
+        """
         #Game loop
         while self.running:
             self._check_events()
@@ -67,6 +73,9 @@ class AlienInvasion:
             self.clock.tick(self.settings.FPS)
 
     def _check_collisions(self):
+        """
+        Checks if the ship hits aliens or if aliens reach screen's bottom
+        """
         #check collisions for ship
         if self.ship.check_collisions(self.alien_fleet.fleet):
             self._check_game_status()
@@ -80,13 +89,20 @@ class AlienInvasion:
         if collisions:
             self.impact_sound.play()
             self.impact_sound.fadeout(300)
+            self.game_stats.update(collisions)
+            self.HUD.update_scores()
 
         if self.alien_fleet.check_destroyed_status():
             self._reset_level()
             self.settings.increase_difficulty()
+            self.game_stats.update_level()
+            self.HUD.update_level()
 
 
     def _check_game_status(self):
+        """
+        Checks if the player still has lives or if the game is over
+        """
         if self.game_stats.ships_left > 0:
             self.game_stats.ships_left -= 1
             self._reset_level()
@@ -96,24 +112,33 @@ class AlienInvasion:
 
 
     def _reset_level(self):
+        """
+        Clears aliens and bullets, and starts a new level
+        """
         self.ship.arsenal.arsenal.empty()
         self.alien_fleet.fleet.empty()
         self.alien_fleet.create_fleet()
 
     def restart_game(self):
+        """
+        Resets the game and starts again from the beginning
+        """
         self.settings.initialize_dynamic_settings()
+        self.game_stats.reset_stats()
+        self.HUD.update_scores()
         self._reset_level()
         self.ship._center_ship()
         self.game_active = True
         pygame.mouse.set_visible(False)
 
-    '''
-    This method draws background, bullets, ship (cat), and displays everything on the screen.
-    '''
+
     def _update_screen(self):
+        """
+        This method draws background, bullets, ship(cat), and displays everything on the screen."""
         self.screen.blit(self.bg, (0,0))
         self.ship.draw()
         self.alien_fleet.draw()
+        self.HUD.draw()
 
         if not self.game_active:
             self.play_button.draw()
@@ -121,13 +146,15 @@ class AlienInvasion:
 
         pygame.display.flip()
 
-    '''
-    This method checks for the kyboard presses, it also checks if user decided to quit the game.
-    '''
+  
     def _check_events(self):
+        """
+        This method checks for the keyboard presses, it also checks if user decided to quit the game.
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+                self.game_stats.save_scores()
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN and self.game_active == True:
@@ -138,20 +165,27 @@ class AlienInvasion:
                 self._check_button_clicked()
 
     def _check_button_clicked(self):
+        """
+        Checks if the play button was clicked by player
+        """
         mouse_pos = pygame.mouse.get_pos()
         if self.play_button.check_clicked(mouse_pos):
             self.restart_game()
                 
     def _check_keyup_events(self, event):
+        """
+        Stops the ship when the player stops pressing a key
+        """
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = False
         elif event.key == pygame.K_LEFT:
             self.ship.moving_left = False
     
-    '''
-    Method is responsible for ship to move on the screen - left and right. As well as firing lasers (stars).
-    '''
+  
     def _check_keydown_events(self, event):
+        """
+        Method is responsible for ship to move on the screen - left and right. As well as firing lasers (starts).
+        """
         if event.key == pygame.K_RIGHT:
             self.ship.moving_right = True
         elif event.key == pygame.K_LEFT:
@@ -161,6 +195,7 @@ class AlienInvasion:
                 self.laser_sound.play()
         elif event.key == pygame.K_q:
             self.running = False
+            self.game_stats.save_scores()
             pygame.quit()
             sys.exit()
 
